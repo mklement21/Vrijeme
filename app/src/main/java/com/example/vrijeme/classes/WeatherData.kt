@@ -1,4 +1,4 @@
-package com.example.vrijeme.helpers
+package com.example.vrijeme.classes
 
 data class WeatherData(
     val list: List<ForecastData>,
