@@ -1,13 +1,11 @@
 package com.example.vrijeme
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 
-class MainActivity : ComponentActivity() {
+class WeatherActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val intent = Intent(this@MainActivity, WeatherActivity::class.java)
-        startActivity(intent)
+        setContentView(R.layout.activity_weather)
     }
 }
