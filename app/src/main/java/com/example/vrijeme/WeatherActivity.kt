@@ -81,10 +81,12 @@ class WeatherActivity : ComponentActivity() {
 
             weatherData?.let {
                 displayDetailedDataForDate(selectedDate)
+                updateTodayWeatherForSelectedDay(selectedDate)
             } ?: run {
                 Toast.makeText(this, "Weather data not available", Toast.LENGTH_SHORT).show()
             }
         }
+
     }
 
     private fun getWeatherData(city: String) {
@@ -178,6 +180,22 @@ class WeatherActivity : ComponentActivity() {
         }
 
         Log.d("WeatherActivity", "Forecasts for selected date: $forecastsForDate")
+    }
+
+    private fun updateTodayWeatherForSelectedDay(selectedDate: String) {
+        val selectedDayWeather = weatherData?.list?.filter { it.dt_txt.startsWith(selectedDate) }
+
+        if (selectedDayWeather != null && selectedDayWeather.isNotEmpty()) {
+            recyclerViewToday.adapter = TodayWeatherAdapter(selectedDayWeather.map {
+                TodayWeatherItem(
+                    time = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(it.dt * 1000)),
+                    temperature = "${it.main.temp}",
+                    description = it.weather.firstOrNull()?.description?.capitalize() ?: ""
+                )
+            })
+        } else {
+            Log.d("WeatherActivity", "No forecast data available for selected date: $selectedDate")
+        }
     }
 
     private fun isToday(timestamp: Long): Boolean {
