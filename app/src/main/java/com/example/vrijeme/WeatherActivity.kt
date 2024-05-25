@@ -9,8 +9,10 @@ import androidx.activity.ComponentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vrijeme.adapters.TodayWeatherAdapter
+import com.example.vrijeme.adapters.WeekWeatherAdapter
 import com.example.vrijeme.classes.TodayWeatherItem
 import com.example.vrijeme.classes.WeatherData
+import com.example.vrijeme.classes.WeekWeatherItem
 import com.example.vrijeme.helpers.RetrofitInstance
 import retrofit2.Call
 import retrofit2.Callback
@@ -32,6 +34,7 @@ class WeatherActivity : ComponentActivity() {
     private lateinit var descriptionLabel: TextView
 
     private lateinit var recyclerViewToday: RecyclerView
+    private lateinit var recyclerViewWeek: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,6 +52,9 @@ class WeatherActivity : ComponentActivity() {
 
         recyclerViewToday = findViewById(R.id.recyclerViewToday)
         recyclerViewToday.layoutManager = LinearLayoutManager(this)
+
+        recyclerViewWeek= findViewById(R.id.recyclerViewWeek)
+        recyclerViewWeek.layoutManager = LinearLayoutManager(this)
 
         searchButton.setOnClickListener {
             val city = searchCity.text.toString()
@@ -105,6 +111,19 @@ class WeatherActivity : ComponentActivity() {
                 TodayWeatherItem(
                     time = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(it.dt * 1000)),
                     temperature = "${it.main.temp}",
+                    description = it.weather.firstOrNull()?.description?.capitalize() ?: ""
+                )
+            })
+        }
+
+        val weekWeatherData = weatherData.list.filter { !isToday(it.dt) }
+
+        if (weekWeatherData.isNotEmpty()) {
+            recyclerViewWeek.adapter = WeekWeatherAdapter(weekWeatherData.map {
+                WeekWeatherItem(
+                    date = SimpleDateFormat("EEEE", Locale.getDefault()).format(Date(it.dt * 1000)),
+                    tempMin = "${it.main.temp_min}",
+                    tempMax = "${it.main.temp_max}",
                     description = it.weather.firstOrNull()?.description?.capitalize() ?: ""
                 )
             })
