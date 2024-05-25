@@ -25,7 +25,5 @@ class WeekWeatherAdapter(private val items: List<WeekWeatherItem>) : RecyclerVie
         holder.description.text = "Max: ${item.tempMax}°C, Min: ${item.tempMin}°C, ${item.description}"
     }
 
-    override fun getItemCount(): Int {
-        return 1
-    }
+    override fun getItemCount(): Int = items.size
 }

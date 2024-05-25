@@ -51,10 +51,10 @@ class WeatherActivity : ComponentActivity() {
         descriptionLabel = findViewById(R.id.descriptionLabel)
 
         recyclerViewToday = findViewById(R.id.recyclerViewToday)
-        recyclerViewToday.layoutManager = LinearLayoutManager(this)
+        recyclerViewToday.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
         recyclerViewWeek= findViewById(R.id.recyclerViewWeek)
-        recyclerViewWeek.layoutManager = LinearLayoutManager(this)
+        recyclerViewWeek.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
         searchButton.setOnClickListener {
             val city = searchCity.text.toString()
@@ -121,7 +121,7 @@ class WeatherActivity : ComponentActivity() {
         if (weekWeatherData.isNotEmpty()) {
             recyclerViewWeek.adapter = WeekWeatherAdapter(weekWeatherData.map {
                 WeekWeatherItem(
-                    date = SimpleDateFormat("EEEE", Locale.getDefault()).format(Date(it.dt * 1000)),
+                    date = SimpleDateFormat("EEEE", Locale.getDefault()).format(Date(it.dt * 1000)).capitalize(),
                     tempMin = "${it.main.temp_min}",
                     tempMax = "${it.main.temp_max}",
                     description = it.weather.firstOrNull()?.description?.capitalize() ?: ""

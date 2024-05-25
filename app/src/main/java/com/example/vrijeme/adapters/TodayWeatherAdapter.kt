@@ -25,7 +25,5 @@ class TodayWeatherAdapter(private val items: List<TodayWeatherItem>) : RecyclerV
         holder.description.text = "${item.temperature}°C, ${item.description}"
     }
 
-    override fun getItemCount(): Int {
-        return 1
-    }
+    override fun getItemCount(): Int = items.size
 }
