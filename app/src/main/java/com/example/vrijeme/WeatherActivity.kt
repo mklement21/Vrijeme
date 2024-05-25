@@ -72,24 +72,30 @@ class WeatherActivity : ComponentActivity() {
 
     private fun updateUI(weatherData: WeatherData) {
         val city = weatherData.city
-        val currentWeather = weatherData.list.firstOrNull()
+        val todayWeatherData = weatherData.list.filter { isToday(it.dt) }
 
-        if (currentWeather != null) {
+        if (todayWeatherData.isNotEmpty()) {
+            val currentWeather = todayWeatherData.first()
+            val tempMin = todayWeatherData.minOf { it.main.temp_min }
+            val tempMax = todayWeatherData.maxOf { it.main.temp_max }
+
             cityLabel.text = city.name
             dateLabel.text = SimpleDateFormat(
                 "dd/MM/yyyy HH:mm",
                 Locale.getDefault()
             ).format(Date(currentWeather.dt * 1000))
             temperatureLabel.text = "${currentWeather.main.temp}°C"
-            tempMinLabel.text = "Min: ${currentWeather.main.temp_min}°C"
-            tempMaxLabel.text = "Max: ${currentWeather.main.temp_max}°C"
+            tempMinLabel.text = "Min: ${tempMin}°C"
+            tempMaxLabel.text = "Max: ${tempMax}°C"
             tempFeelsLikeLabel.text = "Feels Like: ${currentWeather.main.feels_like}°C"
-            descriptionLabel.text = currentWeather.weather.firstOrNull()?.description ?: ""
+            descriptionLabel.text = currentWeather.weather.firstOrNull()?.description?.capitalize() ?: ""
         }
-
     }
 
-    private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    private fun isToday(timestamp: Long): Boolean {
+        val date = Date(timestamp * 1000)
+        val today = Date()
+        val sdf = SimpleDateFormat("yyyyMMdd", Locale.getDefault())
+        return sdf.format(date) == sdf.format(today)
     }
 }

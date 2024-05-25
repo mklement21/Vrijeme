@@ -132,7 +132,7 @@
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/tempMinLabel"
+                            android:id="@+id/tempMaxLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:padding="8dp"
@@ -141,7 +141,7 @@
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/tempMaxLabel"
+                            android:id="@+id/tempMinLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:padding="8dp"
