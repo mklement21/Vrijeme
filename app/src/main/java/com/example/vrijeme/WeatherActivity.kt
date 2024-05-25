@@ -36,6 +36,12 @@ class WeatherActivity : ComponentActivity() {
     private lateinit var recyclerViewToday: RecyclerView
     private lateinit var recyclerViewWeek: RecyclerView
 
+    private lateinit var todayWeatherAdapter: TodayWeatherAdapter
+    private lateinit var weekWeatherAdapter: WeekWeatherAdapter
+
+    private val todayForecastList = mutableListOf<TodayWeatherItem>()
+    private val weekForecastList = mutableListOf<WeekWeatherItem>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_weather)
@@ -56,6 +62,8 @@ class WeatherActivity : ComponentActivity() {
 
         recyclerViewWeek= findViewById(R.id.recyclerViewWeek)
         recyclerViewWeek.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        weekWeatherAdapter = WeekWeatherAdapter(weekForecastList)
+        recyclerViewWeek.adapter = weekWeatherAdapter
 
         searchButton.setOnClickListener {
             val city = searchCity.text.toString()
@@ -117,18 +125,23 @@ class WeatherActivity : ComponentActivity() {
             })
         }
 
-        val weekWeatherData = weatherData.list.filter { !isToday(it.dt) }
-
-        if (weekWeatherData.isNotEmpty()) {
-            recyclerViewWeek.adapter = WeekWeatherAdapter(weekWeatherData.map {
-                WeekWeatherItem(
-                    date = SimpleDateFormat("EEEE", Locale.getDefault()).format(Date(it.dt * 1000)).capitalize(),
-                    tempMin = "${it.main.temp_min}",
-                    tempMax = "${it.main.temp_max}",
-                    description = it.weather.firstOrNull()?.description?.capitalize() ?: ""
-                )
-            })
+        val weekForecastList = weatherData.list.groupBy { forecast ->
+            SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(Date(forecast.dt * 1000))
+        }.map { (date, forecasts) ->
+            val tempMin = forecasts.minOf { it.main.temp_min }
+            val tempMax = forecasts.maxOf { it.main.temp_max }
+            val description = forecasts.firstOrNull()?.weather?.firstOrNull()?.description ?: ""
+            WeekWeatherItem(
+                date = SimpleDateFormat("EEEE", Locale.ENGLISH).format(Date(forecasts.first().dt * 1000)).capitalize(),
+                tempMin = "$tempMin",
+                tempMax = "$tempMax",
+                description = description.capitalize()
+            )
         }
+
+        this.weekForecastList.clear()
+        this.weekForecastList.addAll(weekForecastList)
+        weekWeatherAdapter.notifyDataSetChanged()
     }
 
     private fun isToday(timestamp: Long): Boolean {
