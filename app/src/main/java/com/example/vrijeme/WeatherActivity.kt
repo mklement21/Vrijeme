@@ -6,6 +6,10 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.vrijeme.adapters.TodayWeatherAdapter
+import com.example.vrijeme.classes.TodayWeatherItem
 import com.example.vrijeme.classes.WeatherData
 import com.example.vrijeme.helpers.RetrofitInstance
 import retrofit2.Call
@@ -27,6 +31,8 @@ class WeatherActivity : ComponentActivity() {
     private lateinit var tempFeelsLikeLabel: TextView
     private lateinit var descriptionLabel: TextView
 
+    private lateinit var recyclerViewToday: RecyclerView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_weather)
@@ -40,6 +46,9 @@ class WeatherActivity : ComponentActivity() {
         tempMaxLabel = findViewById(R.id.tempMaxLabel)
         tempFeelsLikeLabel = findViewById(R.id.tempFeelsLikeLabel)
         descriptionLabel = findViewById(R.id.descriptionLabel)
+
+        recyclerViewToday = findViewById(R.id.recyclerViewToday)
+        recyclerViewToday.layoutManager = LinearLayoutManager(this)
 
         searchButton.setOnClickListener {
             val city = searchCity.text.toString()
@@ -78,6 +87,7 @@ class WeatherActivity : ComponentActivity() {
             val currentWeather = todayWeatherData.first()
             val tempMin = todayWeatherData.minOf { it.main.temp_min }
             val tempMax = todayWeatherData.maxOf { it.main.temp_max }
+            val todayWeatherData = weatherData.list.filter { isToday(it.dt) }
 
             cityLabel.text = city.name
             dateLabel.text = SimpleDateFormat(
@@ -89,6 +99,15 @@ class WeatherActivity : ComponentActivity() {
             tempMaxLabel.text = "Max: ${tempMax}°C"
             tempFeelsLikeLabel.text = "Feels Like: ${currentWeather.main.feels_like}°C"
             descriptionLabel.text = currentWeather.weather.firstOrNull()?.description?.capitalize() ?: ""
+
+
+            recyclerViewToday.adapter = TodayWeatherAdapter(todayWeatherData.map {
+                TodayWeatherItem(
+                    time = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(it.dt * 1000)),
+                    temperature = "${it.main.temp}",
+                    description = it.weather.firstOrNull()?.description?.capitalize() ?: ""
+                )
+            })
         }
     }
 
