@@ -1,9 +1,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="170dp"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@drawable/cards_background"
-    android:padding="16dp">
+    android:padding="10dp"
+    android:gravity="center"
+    android:layout_marginStart="4dp">>
 
     <TextView
         android:id="@+id/textOverlay"
@@ -12,7 +14,7 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="#000000"
-        android:padding="4dp" />
+        android:gravity="center"/>
 
     <TextView
         android:id="@+id/descriptionOverlay"
@@ -20,5 +22,5 @@
         android:layout_height="wrap_content"
         android:textSize="16sp"
         android:textColor="#555555"
-        android:padding="4dp" />
+        android:gravity="center"/>
 </LinearLayout>

@@ -22,7 +22,7 @@ class WeekWeatherAdapter(private val items: List<WeekWeatherItem>) : RecyclerVie
     override fun onBindViewHolder(holder: WeekWeatherViewHolder, position: Int) {
         val item = items[position]
         holder.date.text = item.date
-        holder.description.text = "Max: ${item.tempMax}°C, Min: ${item.tempMin}°C, ${item.description}"
+        holder.description.text = "Max: ${item.tempMax}°C\nMin: ${item.tempMin}°C\n${item.description}"
     }
 
     override fun getItemCount(): Int = items.size
