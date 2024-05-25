@@ -1,6 +1,7 @@
 package com.example.vrijeme
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -32,6 +33,7 @@ class WeatherActivity : ComponentActivity() {
     private lateinit var tempMaxLabel: TextView
     private lateinit var tempFeelsLikeLabel: TextView
     private lateinit var descriptionLabel: TextView
+    private var weatherData: WeatherData? = null
 
     private lateinit var recyclerViewToday: RecyclerView
     private lateinit var recyclerViewWeek: RecyclerView
@@ -60,7 +62,7 @@ class WeatherActivity : ComponentActivity() {
         recyclerViewToday.layoutManager = LinearLayoutManager(this)
         recyclerViewToday.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
-        recyclerViewWeek= findViewById(R.id.recyclerViewWeek)
+        recyclerViewWeek = findViewById(R.id.recyclerViewWeek)
         recyclerViewWeek.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         weekWeatherAdapter = WeekWeatherAdapter(weekForecastList)
         recyclerViewWeek.adapter = weekWeatherAdapter
@@ -73,6 +75,18 @@ class WeatherActivity : ComponentActivity() {
                 Toast.makeText(this, "Please enter a city name", Toast.LENGTH_SHORT).show()
             }
         }
+
+        weekWeatherAdapter.setOnItemClickListener { position ->
+            val selectedDayWeather = weekForecastList[position]
+            val selectedDate = selectedDayWeather.date
+            Log.d("WeatherActivity", "Selected Date: $selectedDate")
+
+            weatherData?.let {
+                displayDetailedDataForDate(selectedDate)
+            } ?: run {
+                Toast.makeText(this, "Weather data not available", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun getWeatherData(city: String) {
@@ -81,6 +95,7 @@ class WeatherActivity : ComponentActivity() {
             override fun onResponse(call: Call<WeatherData>, response: Response<WeatherData>) {
                 if (response.isSuccessful) {
                     response.body()?.let { weatherData ->
+                        this@WeatherActivity.weatherData = weatherData
                         updateUI(weatherData)
                     }
                 } else {
@@ -102,7 +117,6 @@ class WeatherActivity : ComponentActivity() {
             val currentWeather = todayWeatherData.first()
             val tempMin = todayWeatherData.minOf { it.main.temp_min }
             val tempMax = todayWeatherData.maxOf { it.main.temp_max }
-            val todayWeatherData = weatherData.list.filter { isToday(it.dt) }
 
             cityLabel.text = city.name
             dateLabel.text = SimpleDateFormat(
@@ -114,7 +128,6 @@ class WeatherActivity : ComponentActivity() {
             tempMaxLabel.text = "Max: ${tempMax}°C"
             tempFeelsLikeLabel.text = "Feels Like: ${currentWeather.main.feels_like}°C"
             descriptionLabel.text = currentWeather.weather.firstOrNull()?.description?.capitalize() ?: ""
-
 
             recyclerViewToday.adapter = TodayWeatherAdapter(todayWeatherData.map {
                 TodayWeatherItem(
@@ -132,7 +145,7 @@ class WeatherActivity : ComponentActivity() {
             val tempMax = forecasts.maxOf { it.main.temp_max }
             val description = forecasts.firstOrNull()?.weather?.firstOrNull()?.description ?: ""
             WeekWeatherItem(
-                date = SimpleDateFormat("EEEE", Locale.ENGLISH).format(Date(forecasts.first().dt * 1000)).capitalize(),
+                date = date,
                 tempMin = "$tempMin",
                 tempMax = "$tempMax",
                 description = description.capitalize()
@@ -142,6 +155,12 @@ class WeatherActivity : ComponentActivity() {
         this.weekForecastList.clear()
         this.weekForecastList.addAll(weekForecastList)
         weekWeatherAdapter.notifyDataSetChanged()
+    }
+
+    private fun displayDetailedDataForDate(date: String) {
+        val forecastsForDate = weatherData?.list?.filter { it.dt_txt.startsWith(date) }
+
+        Log.d("WeatherActivity", "Selected Date: $forecastsForDate")
     }
 
     private fun isToday(timestamp: Long): Boolean {
