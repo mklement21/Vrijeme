@@ -5,10 +5,16 @@ data class WeatherData(
     val city: CityData,
 )
 
+data class Wind(
+    val speed: Double,
+    val deg: Int
+)
+
 data class ForecastData(
     val dt: Long,
     val main: MainData,
     val weather: List<Weather>,
+    val wind: Wind?,
     val dt_txt: String
 )
 

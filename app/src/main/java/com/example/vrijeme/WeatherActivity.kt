@@ -38,10 +38,8 @@ class WeatherActivity : ComponentActivity() {
     private lateinit var recyclerViewToday: RecyclerView
     private lateinit var recyclerViewWeek: RecyclerView
 
-    private lateinit var todayWeatherAdapter: TodayWeatherAdapter
     private lateinit var weekWeatherAdapter: WeekWeatherAdapter
 
-    private val todayForecastList = mutableListOf<TodayWeatherItem>()
     private val weekForecastList = mutableListOf<WeekWeatherItem>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -160,7 +158,26 @@ class WeatherActivity : ComponentActivity() {
     private fun displayDetailedDataForDate(date: String) {
         val forecastsForDate = weatherData?.list?.filter { it.dt_txt.startsWith(date) }
 
-        Log.d("WeatherActivity", "Selected Date: $forecastsForDate")
+        if (forecastsForDate != null && forecastsForDate.isNotEmpty()) {
+            val tempMin = forecastsForDate.minOf { it.main.temp_min }
+            val tempMax = forecastsForDate.maxOf { it.main.temp_max }
+            val temperature = forecastsForDate[0].main.temp
+            val feelsLike = forecastsForDate[0].main.feels_like
+            val mainWeather = forecastsForDate[0].weather[0].main
+            val descriptionWeather = forecastsForDate[0].weather[0].description
+
+            dateLabel.text = date
+            temperatureLabel.text = "${temperature}°C"
+            tempMinLabel.text = "Min: ${tempMin}°C"
+            tempMaxLabel.text = "Max: ${tempMax}°C"
+            tempFeelsLikeLabel.text = "Feels Like: ${feelsLike}°C"
+            descriptionLabel.text = descriptionWeather.capitalize() ?: ""
+
+        } else {
+            Log.d("WeatherActivity", "No forecast data available for date: $date")
+        }
+
+        Log.d("WeatherActivity", "Forecasts for selected date: $forecastsForDate")
     }
 
     private fun isToday(timestamp: Long): Boolean {
