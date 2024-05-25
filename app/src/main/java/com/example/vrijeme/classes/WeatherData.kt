@@ -7,8 +7,17 @@ data class WeatherData(
 
 data class ForecastData(
     val dt: Long,
+    val main: MainData,
     val weather: List<Weather>,
     val dt_txt: String
+)
+
+data class MainData(
+    val temp: Double,
+    val feels_like: Double,
+    val temp_min: Double,
+    val temp_max: Double,
+    val humidity: Int
 )
 
 data class Weather(
