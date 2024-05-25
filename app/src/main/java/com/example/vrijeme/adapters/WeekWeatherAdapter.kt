@@ -15,7 +15,7 @@ class WeekWeatherAdapter(private val items: List<WeekWeatherItem>) : RecyclerVie
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WeekWeatherViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.card_item, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.week_card_item, parent, false)
         return WeekWeatherViewHolder(view)
     }
 

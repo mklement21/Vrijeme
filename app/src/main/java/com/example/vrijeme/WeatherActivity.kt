@@ -51,6 +51,7 @@ class WeatherActivity : ComponentActivity() {
         descriptionLabel = findViewById(R.id.descriptionLabel)
 
         recyclerViewToday = findViewById(R.id.recyclerViewToday)
+        recyclerViewToday.layoutManager = LinearLayoutManager(this)
         recyclerViewToday.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
         recyclerViewWeek= findViewById(R.id.recyclerViewWeek)
