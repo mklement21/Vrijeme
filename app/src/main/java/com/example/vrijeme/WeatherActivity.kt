@@ -10,8 +10,11 @@ import androidx.activity.ComponentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vrijeme.adapters.TodayWeatherAdapter
+import com.example.vrijeme.adapters.WeatherAttribute
+import com.example.vrijeme.adapters.WeatherAttributeAdapter
 import com.example.vrijeme.adapters.WeekWeatherAdapter
 import com.example.vrijeme.classes.TodayWeatherItem
+import com.example.vrijeme.classes.WeatherAttributesData
 import com.example.vrijeme.classes.WeatherData
 import com.example.vrijeme.classes.WeekWeatherItem
 import com.example.vrijeme.helpers.RetrofitInstance
@@ -37,8 +40,10 @@ class WeatherActivity : ComponentActivity() {
 
     private lateinit var recyclerViewToday: RecyclerView
     private lateinit var recyclerViewWeek: RecyclerView
+    private lateinit var recyclerViewAttributes: RecyclerView
 
     private lateinit var weekWeatherAdapter: WeekWeatherAdapter
+    private lateinit var weatherAttributeAdapter: WeatherAttributeAdapter
 
     private val weekForecastList = mutableListOf<WeekWeatherItem>()
 
@@ -64,6 +69,9 @@ class WeatherActivity : ComponentActivity() {
         recyclerViewWeek.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         weekWeatherAdapter = WeekWeatherAdapter(weekForecastList)
         recyclerViewWeek.adapter = weekWeatherAdapter
+
+        recyclerViewAttributes = findViewById(R.id.recyclerViewAttributes)
+        recyclerViewAttributes.layoutManager = LinearLayoutManager(this)
 
         searchButton.setOnClickListener {
             val city = searchCity.text.toString()
@@ -127,17 +135,49 @@ class WeatherActivity : ComponentActivity() {
             tempMinLabel.text = "Min: ${tempMin}°C"
             tempMaxLabel.text = "Max: ${tempMax}°C"
             tempFeelsLikeLabel.text = "Feels Like: ${currentWeather.main.feels_like}°C"
-            descriptionLabel.text = currentWeather.weather.firstOrNull()?.description?.capitalize() ?: ""
+            descriptionLabel.text =
+                currentWeather.weather.firstOrNull()?.description?.capitalize() ?: ""
 
             recyclerViewToday.adapter = TodayWeatherAdapter(todayWeatherData.map {
                 TodayWeatherItem(
-                    time = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(it.dt * 1000)),
+                    time = SimpleDateFormat(
+                        "HH:mm",
+                        Locale.getDefault()
+                    ).format(Date(it.dt * 1000)),
                     temperature = "${it.main.temp}",
                     description = it.weather.firstOrNull()?.description?.capitalize() ?: ""
                 )
             })
+
+
+            //attributes
+            if (weatherData.list.isNotEmpty()) {
+                val currentWeather = weatherData.list.first()
+
+                val attributesData = WeatherAttributesData(
+                    pressure = currentWeather.main.pressure,
+                    humidity = currentWeather.main.humidity,
+                    windSpeed = currentWeather.wind.speed,
+                    windDegree = currentWeather.wind.deg,
+                    clouds = currentWeather.clouds.all,
+                    visibility = currentWeather.visibility
+                )
+
+                val attributesList = listOf(
+                    WeatherAttribute("Pressure", "${attributesData.pressure} hPa"),
+                    WeatherAttribute("Humidity", "${attributesData.humidity} %"),
+                    WeatherAttribute("Wind Speed", "${attributesData.windSpeed} m/s"),
+                    WeatherAttribute("Wind Degree", "${attributesData.windDegree}°"),
+                    WeatherAttribute("Clouds", "${attributesData.clouds} %"),
+                    WeatherAttribute("Visibility", "${attributesData.visibility} m")
+                )
+
+                weatherAttributeAdapter = WeatherAttributeAdapter(attributesList)
+                recyclerViewAttributes.adapter = weatherAttributeAdapter
+            }
         }
 
+        //week data
         val weekForecastList = weatherData.list.groupBy { forecast ->
             SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(Date(forecast.dt * 1000))
         }.map { (date, forecasts) ->
