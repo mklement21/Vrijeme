@@ -1,6 +1,6 @@
 package com.example.vrijeme.classes
 
-data class WeatherAtributesData(
+data class WeatherAttributesData(
     val pressure: Int,
     val humidity: Int,
     val windSpeed: Double,
