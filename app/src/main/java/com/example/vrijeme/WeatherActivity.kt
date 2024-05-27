@@ -202,6 +202,8 @@ class WeatherActivity : ComponentActivity() {
         val forecastsForDate = weatherData?.list?.filter { it.dt_txt.startsWith(date) }
 
         if (forecastsForDate != null && forecastsForDate.isNotEmpty()) {
+            val currentWeather = forecastsForDate.first()
+
             val tempMin = forecastsForDate.minOf { it.main.temp_min }
             val tempMax = forecastsForDate.maxOf { it.main.temp_max }
             val temperature = forecastsForDate[0].main.temp
@@ -216,9 +218,32 @@ class WeatherActivity : ComponentActivity() {
             tempFeelsLikeLabel.text = "Feels Like: ${feelsLike}°C"
             descriptionLabel.text = descriptionWeather.capitalize() ?: ""
 
+            val attributesData = WeatherAttributesData(
+                pressure = currentWeather.main.pressure,
+                humidity = currentWeather.main.humidity,
+                windSpeed = currentWeather.wind.speed,
+                windDegree = currentWeather.wind.deg,
+                clouds = currentWeather.clouds.all,
+                visibility = currentWeather.visibility
+            )
+
+            val attributesList = listOf(
+                WeatherAttribute("Pressure", "${attributesData.pressure} hPa"),
+                WeatherAttribute("Humidity", "${attributesData.humidity} %"),
+                WeatherAttribute("Wind Speed", "${attributesData.windSpeed} m/s"),
+                WeatherAttribute("Wind Degree", "${attributesData.windDegree}°"),
+                WeatherAttribute("Clouds", "${attributesData.clouds} %"),
+                WeatherAttribute("Visibility", "${attributesData.visibility} m")
+            )
+
+            weatherAttributeAdapter = WeatherAttributeAdapter(attributesList)
+            recyclerViewAttributes.adapter = weatherAttributeAdapter
+
         } else {
             Log.d("WeatherActivity", "No forecast data available for date: $date")
         }
+
+
 
         Log.d("WeatherActivity", "Forecasts for selected date: $forecastsForDate")
     }
