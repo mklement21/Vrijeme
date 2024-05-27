@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vrijeme.R
+import kotlin.math.ceil
 
 data class WeatherAttribute(
     val title: String,
@@ -15,11 +16,6 @@ data class WeatherAttribute(
 class WeatherAttributeAdapter(private val attributes: List<WeatherAttribute>) :
     RecyclerView.Adapter<WeatherAttributeAdapter.ViewHolder>() {
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val titleLabel: TextView = view.findViewById(R.id.titleLabel)
-        val descriptionLabel: TextView = view.findViewById(R.id.descriptionLabel)
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.attributes_layout, parent, false)
@@ -28,9 +24,15 @@ class WeatherAttributeAdapter(private val attributes: List<WeatherAttribute>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val attribute = attributes[position]
-        holder.titleLabel.text = attribute.title
-        holder.descriptionLabel.text = attribute.value
+        holder.titleTextView.text = attribute.title
+        holder.descriptionTextView.text = attribute.value
     }
 
-    override fun getItemCount() = attributes.size
+
+    override fun getItemCount() : Int = attributes.size
+
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val titleTextView: TextView = view.findViewById(R.id.titleLabel)
+        val descriptionTextView: TextView = view.findViewById(R.id.descriptionLabel)
+    }
 }

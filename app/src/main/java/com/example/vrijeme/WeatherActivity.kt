@@ -171,7 +171,6 @@ class WeatherActivity : ComponentActivity() {
                     WeatherAttribute("Clouds", "${attributesData.clouds} %"),
                     WeatherAttribute("Visibility", "${attributesData.visibility} m")
                 )
-
                 weatherAttributeAdapter = WeatherAttributeAdapter(attributesList)
                 recyclerViewAttributes.adapter = weatherAttributeAdapter
             }
