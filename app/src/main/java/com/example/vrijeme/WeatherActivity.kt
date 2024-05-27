@@ -155,12 +155,11 @@ class WeatherActivity : ComponentActivity() {
             //attributes
             if (weatherData.list.isNotEmpty()) {
                 val currentWeather = weatherData.list.first()
-
                 val attributesData = WeatherAttributesData(
                     pressure = currentWeather.main.pressure,
                     humidity = currentWeather.main.humidity,
                     windSpeed = currentWeather.wind.speed,
-                    windDegree = currentWeather.wind.deg,
+                    rainProbability = currentWeather.rain?.next3h ?: 0.0,
                     clouds = currentWeather.clouds.all,
                     visibility = currentWeather.visibility
                 )
@@ -169,7 +168,7 @@ class WeatherActivity : ComponentActivity() {
                     WeatherAttribute("Pressure", "${attributesData.pressure} hPa"),
                     WeatherAttribute("Humidity", "${attributesData.humidity} %"),
                     WeatherAttribute("Wind Speed", "${attributesData.windSpeed} m/s"),
-                    WeatherAttribute("Wind Degree", "${attributesData.windDegree}°"),
+                    WeatherAttribute("Rain Probability", "${attributesData.rainProbability}°"),
                     WeatherAttribute("Clouds", "${attributesData.clouds} %"),
                     WeatherAttribute("Visibility", "${attributesData.visibility} m")
                 )
@@ -208,7 +207,6 @@ class WeatherActivity : ComponentActivity() {
             val tempMax = forecastsForDate.maxOf { it.main.temp_max }
             val temperature = forecastsForDate[0].main.temp
             val feelsLike = forecastsForDate[0].main.feels_like
-            val mainWeather = forecastsForDate[0].weather[0].main
             val descriptionWeather = forecastsForDate[0].weather[0].description
 
             dateLabel.text = date
@@ -222,7 +220,7 @@ class WeatherActivity : ComponentActivity() {
                 pressure = currentWeather.main.pressure,
                 humidity = currentWeather.main.humidity,
                 windSpeed = currentWeather.wind.speed,
-                windDegree = currentWeather.wind.deg,
+                rainProbability = currentWeather.rain?.next3h ?: 0.0,
                 clouds = currentWeather.clouds.all,
                 visibility = currentWeather.visibility
             )
@@ -231,7 +229,7 @@ class WeatherActivity : ComponentActivity() {
                 WeatherAttribute("Pressure", "${attributesData.pressure} hPa"),
                 WeatherAttribute("Humidity", "${attributesData.humidity} %"),
                 WeatherAttribute("Wind Speed", "${attributesData.windSpeed} m/s"),
-                WeatherAttribute("Wind Degree", "${attributesData.windDegree}°"),
+                WeatherAttribute("Rain Probability", "${attributesData.rainProbability} %"),
                 WeatherAttribute("Clouds", "${attributesData.clouds} %"),
                 WeatherAttribute("Visibility", "${attributesData.visibility} m")
             )
@@ -242,9 +240,6 @@ class WeatherActivity : ComponentActivity() {
         } else {
             Log.d("WeatherActivity", "No forecast data available for date: $date")
         }
-
-
-
         Log.d("WeatherActivity", "Forecasts for selected date: $forecastsForDate")
     }
 

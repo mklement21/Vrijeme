@@ -4,7 +4,8 @@ data class WeatherAttributesData(
     val pressure: Int,
     val humidity: Int,
     val windSpeed: Double,
-    val windDegree: Int,
+    val rainProbability: Double,
     val clouds: Int,
     val visibility: Int
 )
+

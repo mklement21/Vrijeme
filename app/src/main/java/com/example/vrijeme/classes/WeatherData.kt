@@ -10,6 +10,7 @@ data class ForecastData(
     val main: MainData,
     val weather: List<Weather>,
     val wind: Wind,
+    val rain: Rain?,
     val clouds: Clouds,
     val visibility: Int,
     val dt_txt: String
@@ -30,8 +31,11 @@ data class Weather(
 )
 
 data class Wind(
-    val speed: Double,
-    val deg: Int
+    val speed: Double
+)
+
+data class Rain(
+    val next3h: Double
 )
 
 data class Clouds(
