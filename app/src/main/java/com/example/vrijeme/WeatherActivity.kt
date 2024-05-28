@@ -1,5 +1,6 @@
 package com.example.vrijeme
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -7,6 +8,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,12 +16,13 @@ import com.example.vrijeme.adapters.TodayWeatherAdapter
 import com.example.vrijeme.adapters.WeatherAttribute
 import com.example.vrijeme.adapters.WeatherAttributeAdapter
 import com.example.vrijeme.adapters.WeekWeatherAdapter
-import com.example.vrijeme.classes.ForecastData
 import com.example.vrijeme.classes.TodayWeatherItem
 import com.example.vrijeme.classes.WeatherAttributesData
 import com.example.vrijeme.classes.WeatherData
 import com.example.vrijeme.classes.WeekWeatherItem
 import com.example.vrijeme.helpers.RetrofitInstance
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -28,6 +31,9 @@ import java.util.Date
 import java.util.Locale
 
 class WeatherActivity : ComponentActivity() {
+
+    //location
+    private lateinit var locationProviderClient: FusedLocationProviderClient
 
     private lateinit var searchCity: EditText
     private lateinit var searchButton: Button
@@ -52,6 +58,10 @@ class WeatherActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_weather)
+
+        //location
+        locationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        getCurrentLocation()
 
         searchCity = findViewById(R.id.searchCity)
         searchButton = findViewById(R.id.searchButton)
@@ -266,5 +276,29 @@ class WeatherActivity : ComponentActivity() {
         val today = Date()
         val sdf = SimpleDateFormat("yyyyMMdd", Locale.getDefault())
         return sdf.format(date) == sdf.format(today)
+    }
+
+    private fun getCurrentLocation() {
+        if (checkPermision()){
+
+        }else{
+
+        }
+    }
+
+
+    private fun checkPermision(): Boolean {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+            == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            return true
+        }
+        return false
     }
 }
