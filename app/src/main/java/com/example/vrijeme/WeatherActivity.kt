@@ -282,10 +282,22 @@ class WeatherActivity : ComponentActivity() {
         if (checkPermision()){
 
         }else{
+            requestPermissions()
 
         }
     }
 
+    private fun requestPermissions(){
+        ActivityCompat.requestPermissions(
+            this, arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                android.Manifest.permission.ACCESS_FINE_LOCATION),
+            PERMISSION_REQUEST_ACCESS_LOCATION
+        )
+    }
+
+    companion object{
+        private const val PERMISSION_REQUEST_ACCESS_LOCATION = 100
+    }
 
     private fun checkPermision(): Boolean {
         if (ActivityCompat.checkSelfPermission(
