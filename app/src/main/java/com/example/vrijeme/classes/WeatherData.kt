@@ -1,5 +1,7 @@
 package com.example.vrijeme.classes
 
+import com.google.gson.annotations.SerializedName
+
 data class WeatherData(
     val list: List<ForecastData>,
     val city: CityData,
@@ -10,7 +12,7 @@ data class ForecastData(
     val main: MainData,
     val weather: List<Weather>,
     val wind: Wind,
-    val rain: Rain?,
+    val rain: Rain,
     val clouds: Clouds,
     val visibility: Int,
     val dt_txt: String
@@ -35,6 +37,7 @@ data class Wind(
 )
 
 data class Rain(
+    @SerializedName("3h")
     val next3h: Double
 )
 

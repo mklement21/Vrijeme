@@ -14,6 +14,7 @@ import com.example.vrijeme.adapters.TodayWeatherAdapter
 import com.example.vrijeme.adapters.WeatherAttribute
 import com.example.vrijeme.adapters.WeatherAttributeAdapter
 import com.example.vrijeme.adapters.WeekWeatherAdapter
+import com.example.vrijeme.classes.ForecastData
 import com.example.vrijeme.classes.TodayWeatherItem
 import com.example.vrijeme.classes.WeatherAttributesData
 import com.example.vrijeme.classes.WeatherData
@@ -155,11 +156,12 @@ class WeatherActivity : ComponentActivity() {
             //attributes
             if (weatherData.list.isNotEmpty()) {
                 val currentWeather = weatherData.list.first()
+
                 val attributesData = WeatherAttributesData(
                     pressure = currentWeather.main.pressure,
                     humidity = currentWeather.main.humidity,
                     windSpeed = currentWeather.wind.speed,
-                    rainProbability = currentWeather.rain?.next3h ?: 0.0,
+                    rainProbability = currentWeather.rain.next3h,
                     clouds = currentWeather.clouds.all,
                     visibility = currentWeather.visibility
                 )
@@ -168,7 +170,7 @@ class WeatherActivity : ComponentActivity() {
                     WeatherAttribute("Pressure", "${attributesData.pressure} hPa"),
                     WeatherAttribute("Humidity", "${attributesData.humidity} %"),
                     WeatherAttribute("Wind Speed", "${attributesData.windSpeed} m/s"),
-                    WeatherAttribute("Rain Probability", "${attributesData.rainProbability}°"),
+                    WeatherAttribute("Rain Probability", "${attributesData.rainProbability} mm"),
                     WeatherAttribute("Clouds", "${attributesData.clouds} %"),
                     WeatherAttribute("Visibility", "${attributesData.visibility} m")
                 )
@@ -229,7 +231,7 @@ class WeatherActivity : ComponentActivity() {
                 WeatherAttribute("Pressure", "${attributesData.pressure} hPa"),
                 WeatherAttribute("Humidity", "${attributesData.humidity} %"),
                 WeatherAttribute("Wind Speed", "${attributesData.windSpeed} m/s"),
-                WeatherAttribute("Rain Probability", "${attributesData.rainProbability} %"),
+                WeatherAttribute("Rain Probability", "${attributesData.rainProbability} mm"),
                 WeatherAttribute("Clouds", "${attributesData.clouds} %"),
                 WeatherAttribute("Visibility", "${attributesData.visibility} m")
             )
