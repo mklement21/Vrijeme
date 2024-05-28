@@ -1,7 +1,11 @@
 package com.example.vrijeme
 
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
@@ -31,10 +35,6 @@ import java.util.Date
 import java.util.Locale
 
 class WeatherActivity : ComponentActivity() {
-
-    //location
-    private lateinit var locationProviderClient: FusedLocationProviderClient
-
     private lateinit var searchCity: EditText
     private lateinit var searchButton: Button
     private lateinit var dateLabel: TextView
@@ -58,10 +58,6 @@ class WeatherActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_weather)
-
-        //location
-        locationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        getCurrentLocation()
 
         searchCity = findViewById(R.id.searchCity)
         searchButton = findViewById(R.id.searchButton)
@@ -276,41 +272,5 @@ class WeatherActivity : ComponentActivity() {
         val today = Date()
         val sdf = SimpleDateFormat("yyyyMMdd", Locale.getDefault())
         return sdf.format(date) == sdf.format(today)
-    }
-
-    private fun getCurrentLocation() {
-        if (checkPermision()){
-
-        }else{
-            requestPermissions()
-
-        }
-    }
-
-    private fun requestPermissions(){
-        ActivityCompat.requestPermissions(
-            this, arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                android.Manifest.permission.ACCESS_FINE_LOCATION),
-            PERMISSION_REQUEST_ACCESS_LOCATION
-        )
-    }
-
-    companion object{
-        private const val PERMISSION_REQUEST_ACCESS_LOCATION = 100
-    }
-
-    private fun checkPermision(): Boolean {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.ACCESS_COARSE_LOCATION
-            )
-            == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            return true
-        }
-        return false
     }
 }
