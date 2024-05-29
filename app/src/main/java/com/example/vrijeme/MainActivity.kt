@@ -51,19 +51,22 @@ class MainActivity : ComponentActivity() {
                     Toast.makeText(this, "Failed to get location. Make sure location is enabled on the device.", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, "Location acquired: ${location.latitude}, ${location.longitude}", Toast.LENGTH_SHORT).show()
-                    navigateToWeatherActivity()
+                    navigateToWeatherActivity(location.latitude, location.longitude)
                 }
             }.addOnFailureListener(this) { exception ->
                 Toast.makeText(this, "Failed to get location: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
-        } else{
+        } else {
             Toast.makeText(this, "Location services are turned off. Turn on location services.", Toast.LENGTH_SHORT).show()
             startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
         }
     }
 
-    private fun navigateToWeatherActivity() {
-        val weatherIntent = Intent(this, WeatherActivity::class.java)
+    private fun navigateToWeatherActivity(latitude: Double, longitude: Double) {
+        val weatherIntent = Intent(this, WeatherActivity::class.java).apply {
+            putExtra("latitude", latitude)
+            putExtra("longitude", longitude)
+        }
         startActivity(weatherIntent)
         finish()
     }

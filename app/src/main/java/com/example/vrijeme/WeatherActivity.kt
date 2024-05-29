@@ -19,6 +19,8 @@ import com.example.vrijeme.classes.WeatherAttributesData
 import com.example.vrijeme.classes.WeatherData
 import com.example.vrijeme.classes.WeekWeatherItem
 import com.example.vrijeme.helpers.RetrofitInstance
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -46,6 +48,7 @@ class WeatherActivity : ComponentActivity() {
     private lateinit var weatherAttributeAdapter: WeatherAttributeAdapter
 
     private val weekForecastList = mutableListOf<WeekWeatherItem>()
+    private lateinit var locationProviderClient: FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +75,13 @@ class WeatherActivity : ComponentActivity() {
 
         recyclerViewAttributes = findViewById(R.id.recyclerViewAttributes)
         recyclerViewAttributes.layoutManager = GridLayoutManager(this, 2)
+
+        locationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
+        val latitude = intent.getDoubleExtra("latitude", 0.0)
+        val longitude = intent.getDoubleExtra("longitude", 0.0)
+
+        cityLabel.text = "Latitude: $latitude, Longitude: $longitude"
 
         searchButton.setOnClickListener {
             val city = searchCity.text.toString()
