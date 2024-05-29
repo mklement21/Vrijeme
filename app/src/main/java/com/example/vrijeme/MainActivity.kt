@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
@@ -12,6 +14,7 @@ import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     private lateinit var locationProviderClient: FusedLocationProviderClient
@@ -50,8 +53,15 @@ class MainActivity : ComponentActivity() {
                 if (location == null) {
                     Toast.makeText(this, "Failed to get location. Make sure location is enabled on the device.", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this, "Location acquired: ${location.latitude}, ${location.longitude}", Toast.LENGTH_SHORT).show()
-                    navigateToWeatherActivity(location.latitude, location.longitude)
+                    val geocoder = Geocoder(this, Locale.getDefault())
+                    val addresses: List<Address>? = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                    val cityName = addresses?.getOrNull(0)?.locality
+                    if (cityName != null) {
+                        Toast.makeText(this, "Location acquired: $cityName", Toast.LENGTH_SHORT).show()
+                        navigateToWeatherActivity(location.latitude, location.longitude, cityName)
+                    } else {
+                        Toast.makeText(this, "City name not found", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }.addOnFailureListener(this) { exception ->
                 Toast.makeText(this, "Failed to get location: ${exception.message}", Toast.LENGTH_SHORT).show()
@@ -62,10 +72,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun navigateToWeatherActivity(latitude: Double, longitude: Double) {
+    private fun navigateToWeatherActivity(latitude: Double, longitude: Double, cityName: String) {
         val weatherIntent = Intent(this, WeatherActivity::class.java).apply {
             putExtra("latitude", latitude)
             putExtra("longitude", longitude)
+            putExtra("cityName", cityName)
         }
         startActivity(weatherIntent)
         finish()

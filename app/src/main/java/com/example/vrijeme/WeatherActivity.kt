@@ -78,10 +78,9 @@ class WeatherActivity : ComponentActivity() {
 
         locationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
-        val latitude = intent.getDoubleExtra("latitude", 0.0)
-        val longitude = intent.getDoubleExtra("longitude", 0.0)
+        val cityName = intent.getStringExtra("cityName") ?: ""
 
-        cityLabel.text = "Latitude: $latitude, Longitude: $longitude"
+        cityLabel.text = cityName
 
         searchButton.setOnClickListener {
             val city = searchCity.text.toString()
