@@ -1,18 +1,12 @@
 package com.example.vrijeme
 
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.location.LocationManager
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,8 +19,6 @@ import com.example.vrijeme.classes.WeatherAttributesData
 import com.example.vrijeme.classes.WeatherData
 import com.example.vrijeme.classes.WeekWeatherItem
 import com.example.vrijeme.helpers.RetrofitInstance
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -79,7 +71,6 @@ class WeatherActivity : ComponentActivity() {
         recyclerViewWeek.adapter = weekWeatherAdapter
 
         recyclerViewAttributes = findViewById(R.id.recyclerViewAttributes)
-        recyclerViewAttributes.layoutManager = LinearLayoutManager(this)
         recyclerViewAttributes.layoutManager = GridLayoutManager(this, 2)
 
         searchButton.setOnClickListener {
@@ -103,7 +94,6 @@ class WeatherActivity : ComponentActivity() {
                 Toast.makeText(this, "Weather data not available", Toast.LENGTH_SHORT).show()
             }
         }
-
     }
 
     private fun getWeatherData(city: String) {
@@ -158,16 +148,13 @@ class WeatherActivity : ComponentActivity() {
                 )
             })
 
-
-            //attributes
+            // Attributes
             if (weatherData.list.isNotEmpty()) {
-                val currentWeather = weatherData.list.first()
-
                 val attributesData = WeatherAttributesData(
                     pressure = currentWeather.main.pressure,
                     humidity = currentWeather.main.humidity,
                     windSpeed = currentWeather.wind.speed,
-                    rainProbability = currentWeather.rain.next3h,
+                    rainProbability = currentWeather.rain?.next3h ?: 0.0,
                     clouds = currentWeather.clouds.all,
                     visibility = currentWeather.visibility
                 )
@@ -185,7 +172,7 @@ class WeatherActivity : ComponentActivity() {
             }
         }
 
-        //week data
+        // Week data
         val weekForecastList = weatherData.list.groupBy { forecast ->
             SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(Date(forecast.dt * 1000))
         }.map { (date, forecasts) ->
