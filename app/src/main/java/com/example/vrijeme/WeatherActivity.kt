@@ -19,6 +19,7 @@ import com.example.vrijeme.classes.WeatherAttributesData
 import com.example.vrijeme.classes.WeatherData
 import com.example.vrijeme.classes.WeekWeatherItem
 import com.example.vrijeme.helpers.RetrofitInstance
+import com.example.vrijeme.helpers.WeatherDataManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import retrofit2.Call
@@ -108,23 +109,13 @@ class WeatherActivity : ComponentActivity() {
     }
 
     private fun getWeatherData(city: String) {
-        val call = RetrofitInstance.api.getWeatherForecast(city, getString(R.string.api_key))
-        call.enqueue(object : Callback<WeatherData> {
-            override fun onResponse(call: Call<WeatherData>, response: Response<WeatherData>) {
-                if (response.isSuccessful) {
-                    response.body()?.let { weatherData ->
-                        this@WeatherActivity.weatherData = weatherData
-                        updateUI(weatherData)
-                    }
-                } else {
-                    Toast.makeText(this@WeatherActivity, "Failed to retrieve data", Toast.LENGTH_SHORT).show()
-                }
+        WeatherDataManager.getWeatherData(city, getString(R.string.api_key)) { weatherData ->
+            if (weatherData != null) {
+                updateUI(weatherData)
+            } else {
+                Toast.makeText(this, "Failed to retrieve weather data", Toast.LENGTH_SHORT).show()
             }
-
-            override fun onFailure(call: Call<WeatherData>, t: Throwable) {
-                Toast.makeText(this@WeatherActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
+        }
     }
 
     private fun updateUI(weatherData: WeatherData) {
