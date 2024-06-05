@@ -26,7 +26,7 @@ class WeatherNotificationService : Service() {
     override fun onCreate() {
         super.onCreate()
         Log.d("WeatherNotification", "WeatherNotificationService onCreate() called")
-        sendNotification("Asadfgthzu")
+        getWeatherDataFromApi()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -34,10 +34,10 @@ class WeatherNotificationService : Service() {
         return START_STICKY
     }
 
-    private fun sendNotification(message: String) {
+    private fun sendNotification(temperature: String) {
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Vremenska obavijest")
-            .setContentText(message)
+            .setContentText("Trenutna temperatura: $temperature °C")
             .setSmallIcon(R.drawable.ic_notification)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
@@ -60,6 +60,8 @@ class WeatherNotificationService : Service() {
         WeatherDataManager.getWeatherData(cityName, getString(R.string.api_key)) { weatherData ->
             if (weatherData != null) {
                 Log.d("WeatherNotification", "Weather data for $cityName: $weatherData")
+                val temperature = weatherData.list[0].main.temp.toString()
+                sendNotification(temperature)
             } else {
                 Log.e("WeatherNotification", "Failed to retrieve weather data for $cityName")
             }
