@@ -17,11 +17,8 @@ import com.google.android.gms.location.LocationServices
 import java.util.Locale
 
 class LocationHelper(private val activity: Activity) {
-    private var locationProviderClient: FusedLocationProviderClient
 
-    init {
-        locationProviderClient = LocationServices.getFusedLocationProviderClient(activity)
-    }
+    private val locationProviderClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity)
 
     fun checkAndRequestPermissions() {
         if (checkPermission()) {
