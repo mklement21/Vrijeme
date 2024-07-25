@@ -10,15 +10,11 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.example.vrijeme.R
 import com.example.vrijeme.helpers.WeatherDataManager
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
-private const val API_BASE_URL = "https://api.example.com/"
+private const val CHANNEL_ID = "WeatherChannel"
 
 class WeatherNotificationService : Service() {
     private val NOTIFICATION_ID = 100
-    private val CHANNEL_ID = "WeatherChannel"
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -63,7 +59,7 @@ class WeatherNotificationService : Service() {
     }
 
     private fun getWeatherDataFromApi() {
-        val cityName = "Zagreb"
+        val cityName = "Zagreb" // Ili neki drugi grad
         WeatherDataManager.getWeatherData(cityName, getString(R.string.api_key)) { weatherData ->
             if (weatherData != null) {
                 val temperature = weatherData.list[0].main.temp.toString()
