@@ -1,6 +1,7 @@
 package com.example.vrijeme
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -58,7 +59,7 @@ class WeatherActivity : ComponentActivity() {
         setContentView(R.layout.activity_weather)
 
         val serviceIntent = Intent(this, WeatherNotificationService::class.java)
-        //startService(serviceIntent)
+        startService(serviceIntent)
 
         searchCity = findViewById(R.id.searchCity)
         searchButton = findViewById(R.id.searchButton)

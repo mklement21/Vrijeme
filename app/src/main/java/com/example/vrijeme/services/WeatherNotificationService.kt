@@ -7,14 +7,16 @@ import android.app.Service
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.vrijeme.R
 import com.example.vrijeme.helpers.WeatherDataManager
 
-private const val CHANNEL_ID = "WeatherChannel"
+private const val API_BASE_URL = "https://api.example.com/"
 
 class WeatherNotificationService : Service() {
     private val NOTIFICATION_ID = 100
+    private val CHANNEL_ID = "WeatherChannel"
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -23,6 +25,7 @@ class WeatherNotificationService : Service() {
     override fun onCreate() {
         super.onCreate()
         startForegroundService()
+        Log.d("MainActivity", "WeatherNotificationService notification")
     }
 
     private fun startForegroundService() {
@@ -59,13 +62,14 @@ class WeatherNotificationService : Service() {
     }
 
     private fun getWeatherDataFromApi() {
-        val cityName = "Zagreb" // Ili neki drugi grad
+        val cityName = "Zagreb"
         WeatherDataManager.getWeatherData(cityName, getString(R.string.api_key)) { weatherData ->
             if (weatherData != null) {
                 val temperature = weatherData.list[0].main.temp.toString()
                 val description = weatherData.list[0].weather.firstOrNull()?.description ?: "No data"
                 sendNotification(temperature, description)
             }
+            //stopSelf()
         }
     }
 
