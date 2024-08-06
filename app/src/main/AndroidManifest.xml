@@ -43,14 +43,18 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".helpers.WeatherAlarmReceiver" />
+        <receiver
+            android:name=".helpers.WeatherAlarmReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:name=".services.WeatherNotificationService"
-            android:foregroundServiceType="location"
-            android:enabled="true"
-            android:exported="true"
-            android:permission="android.permission.FOREGROUND_SERVICE" />
+            android:exported="false" />
 
         <service android:name=".services.LocationService" />
     </application>

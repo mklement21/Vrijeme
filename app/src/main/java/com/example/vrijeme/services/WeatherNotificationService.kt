@@ -11,6 +11,9 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.vrijeme.R
 import com.example.vrijeme.helpers.WeatherDataManager
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 private const val API_BASE_URL = "https://api.example.com/"
 
@@ -24,8 +27,8 @@ class WeatherNotificationService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        Log.d("WeatherNotificationService", "WeatherNotificationService called")
         startForegroundService()
-        Log.d("MainActivity", "WeatherNotificationService notification")
     }
 
     private fun startForegroundService() {
@@ -69,14 +72,15 @@ class WeatherNotificationService : Service() {
                 val description = weatherData.list[0].weather.firstOrNull()?.description ?: "No data"
                 sendNotification(temperature, description)
             }
-            //stopSelf()
         }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d("WeatherNotificationService", "onStartCommand called")
         getWeatherDataFromApi()
         return START_STICKY
     }
+
 
     override fun onDestroy() {
         super.onDestroy()
