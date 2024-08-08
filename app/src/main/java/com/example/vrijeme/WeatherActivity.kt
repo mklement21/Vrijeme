@@ -1,7 +1,5 @@
 package com.example.vrijeme
 
-import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -20,14 +18,9 @@ import com.example.vrijeme.classes.TodayWeatherItem
 import com.example.vrijeme.classes.WeatherAttributesData
 import com.example.vrijeme.classes.WeatherData
 import com.example.vrijeme.classes.WeekWeatherItem
-import com.example.vrijeme.helpers.RetrofitInstance
 import com.example.vrijeme.helpers.WeatherDataManager
-import com.example.vrijeme.services.WeatherNotificationService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -58,8 +51,8 @@ class WeatherActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_weather)
 
-        val serviceIntent = Intent(this, WeatherNotificationService::class.java)
-        startService(serviceIntent)
+        //val serviceIntent = Intent(this, WeatherNotificationService::class.java)
+        //startService(serviceIntent)
 
         searchCity = findViewById(R.id.searchCity)
         searchButton = findViewById(R.id.searchButton)

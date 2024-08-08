@@ -1,17 +1,15 @@
 package com.example.vrijeme.services
 
-import android.app.Service
-import android.content.Intent
-import android.os.IBinder
-import android.util.Log
-import com.example.vrijeme.R
-import com.example.vrijeme.helpers.WeatherDataManager
-import retrofit2.Call
-import retrofit2.Callback
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.Service
+import android.content.Intent
 import android.os.Build
+import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.example.vrijeme.R
+import com.example.vrijeme.helpers.WeatherDataManager
 
 private const val API_BASE_URL = "https://api.example.com/"
 

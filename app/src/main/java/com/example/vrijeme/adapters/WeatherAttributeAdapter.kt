@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vrijeme.R
-import kotlin.math.ceil
 
 data class WeatherAttribute(
     val title: String,
@@ -27,7 +26,6 @@ class WeatherAttributeAdapter(private val attributes: List<WeatherAttribute>) :
         holder.titleTextView.text = attribute.title
         holder.descriptionTextView.text = attribute.value
     }
-
 
     override fun getItemCount() : Int = attributes.size
 
