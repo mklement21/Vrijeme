@@ -61,8 +61,6 @@ class WeatherActivity : ComponentActivity() {
         val serviceIntent = Intent(this, WeatherNotificationService::class.java)
         startService(serviceIntent)
 
-        //startForegroundService(serviceIntent)
-
         searchCity = findViewById(R.id.searchCity)
         searchButton = findViewById(R.id.searchButton)
         dateLabel = findViewById(R.id.dateLabel)

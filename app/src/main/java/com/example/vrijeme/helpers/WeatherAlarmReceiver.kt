@@ -15,10 +15,14 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
         Log.d("WeatherAlarmReceiver", "Alarm received")
         Toast.makeText(context, "Alarm je zazvonio!", Toast.LENGTH_SHORT).show()
 
+        val serviceIntent = Intent(context, WeatherNotificationService::class.java)
 
-        //val serviceIntent = Intent(this, WeatherNotificationService::class.java)
-        //startForegroundService(serviceIntent)
-
-        //ContextCompat.startForegroundService(context, serviceIntent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Log.d("WeatherAlarmReceiver", "Starting service in foreground mode")
+            ContextCompat.startForegroundService(context, serviceIntent)
+        } else {
+            Log.d("WeatherAlarmReceiver", "Starting service in background mode")
+            context.startService(serviceIntent)
+        }
     }
 }
