@@ -1,5 +1,6 @@
 package com.example.vrijeme.services
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
@@ -9,35 +10,22 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.vrijeme.R
+import com.example.vrijeme.helpers.LocationHelper
 import com.example.vrijeme.helpers.WeatherDataManager
-
-private const val API_BASE_URL = "https://api.example.com/"
+import com.example.vrijeme.helpers.WeatherDataManager.getWeatherData
 
 class WeatherNotificationService : Service() {
     private val NOTIFICATION_ID = 100
     private val CHANNEL_ID = "WeatherChannel"
-
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
+    private lateinit var locationHelper: LocationHelper
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        getWeatherDataFromApi()
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Weather Service")
-            .setContentText("Fetching weather updates...")
-            .setSmallIcon(R.drawable.ic_notification)
-            .build()
-
-        startForeground(NOTIFICATION_ID, notification)
-
-        getWeatherDataFromApi()
-        return START_STICKY
+        locationHelper = LocationHelper(this)
+        locationHelper.checkAndRequestPermissions { latitude, longitude, cityName ->
+            onLocationReceived(latitude, longitude, cityName)
+        }
     }
 
     private fun createNotificationChannel() {
@@ -52,6 +40,14 @@ class WeatherNotificationService : Service() {
         }
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return START_STICKY
+    }
+
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
+    }
+
     private fun sendNotification(temperature: String) {
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Weather Alert")
@@ -63,15 +59,19 @@ class WeatherNotificationService : Service() {
         notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
     }
 
-    private fun getWeatherDataFromApi() {
-        val cityName = "Zagreb"
-        WeatherDataManager.getWeatherData(cityName, getString(R.string.api_key)) { weatherData ->
+    private fun updateWeatherData(city: String) {
+        WeatherDataManager.getWeatherData(city, getString(R.string.api_key)) { weatherData ->
             if (weatherData != null) {
                 val temperature = weatherData.list[0].main.temp.toString()
                 sendNotification(temperature)
             } else {
-                Log.e("WeatherNotification", "Failed to retrieve weather data for $cityName")
+                Log.e("WeatherNotification", "Failed to retrieve weather data for location")
             }
         }
     }
+
+    fun onLocationReceived(latitude: Double, longitude: Double, cityName: String) {
+        updateWeatherData(cityName)
+    }
 }
+

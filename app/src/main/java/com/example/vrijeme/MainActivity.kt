@@ -1,13 +1,13 @@
 package com.example.vrijeme
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import com.example.vrijeme.helpers.LocationHelper
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.util.Log
+import androidx.activity.ComponentActivity
+import com.example.vrijeme.helpers.LocationHelper
 import com.example.vrijeme.helpers.WeatherAlarmReceiver
 import java.util.*
 
@@ -18,7 +18,18 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         locationHelper = LocationHelper(this)
-        locationHelper.checkAndRequestPermissions()
+
+        // Check permissions and request location
+        locationHelper.checkAndRequestPermissions { latitude, longitude, cityName ->
+            Log.d("MainActivity", "Location acquired: $latitude, $longitude, City: $cityName")
+            val intent = Intent(this, WeatherActivity::class.java).apply {
+                putExtra("latitude", latitude)
+                putExtra("longitude", longitude)
+                putExtra("cityName", cityName)
+            }
+            startActivity(intent)
+            finish()
+        }
 
         scheduleNotification()
     }
@@ -43,9 +54,9 @@ class MainActivity : ComponentActivity() {
         )
 
         val calendar = Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, 12)
-        calendar.set(Calendar.MINUTE, 45)
-        calendar.set(Calendar.SECOND, 20)
+        calendar.set(Calendar.HOUR_OF_DAY, 13)
+        calendar.set(Calendar.MINUTE, 30)
+        calendar.set(Calendar.SECOND, 0)
 
         if (calendar.timeInMillis < System.currentTimeMillis()) {
             calendar.add(Calendar.DAY_OF_YEAR, 1)

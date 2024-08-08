@@ -9,6 +9,7 @@ import android.location.Address
 import android.location.Geocoder
 import android.location.LocationManager
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.example.vrijeme.WeatherActivity
@@ -16,72 +17,64 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import java.util.Locale
 
-class LocationHelper(private val activity: Activity) {
+class LocationHelper(private val context: Context) {
+    private val locationProviderClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
 
-    private val locationProviderClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity)
+    private var locationCallback: ((Double, Double, String) -> Unit)? = null
 
-    fun checkAndRequestPermissions() {
+    fun checkAndRequestPermissions(callback: (Double, Double, String) -> Unit) {
+        this.locationCallback = callback
         if (checkPermission()) {
-            getCurrentLocation()
+            getCurrentLocation(callback)
         } else {
             requestPermissions()
         }
     }
 
-    private fun getCurrentLocation() {
+    private fun getCurrentLocation(locationCallback: (Double, Double, String) -> Unit) {
         if (isLocationEnabled()) {
             if (ActivityCompat.checkSelfPermission(
-                    activity,
+                    context,
                     Manifest.permission.ACCESS_FINE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    activity,
+                    context,
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
                 requestPermissions()
                 return
             }
-            locationProviderClient.lastLocation.addOnSuccessListener(activity) { location ->
-                if (location == null) {
-                    Toast.makeText(activity, "Failed to get location. Make sure location is enabled on the device.", Toast.LENGTH_SHORT).show()
-                } else {
-                    val geocoder = Geocoder(activity, Locale.getDefault())
+            locationProviderClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    val geocoder = Geocoder(context, Locale.getDefault())
                     val addresses: List<Address>? = geocoder.getFromLocation(location.latitude, location.longitude, 1)
                     val cityName = addresses?.getOrNull(0)?.locality
                     if (cityName != null) {
-                        Toast.makeText(activity, "Location acquired: $cityName", Toast.LENGTH_SHORT).show()
-                        navigateToWeatherActivity(location.latitude, location.longitude, cityName)
+                        locationCallback(location.latitude, location.longitude, cityName) // Invoke the callback
                     } else {
-                        Toast.makeText(activity, "City name not found", Toast.LENGTH_SHORT).show()
+                        Log.e("LocationHelper", "City name not found")
                     }
+                } else {
+                    Log.e("LocationHelper", "Failed to get location")
                 }
-            }.addOnFailureListener(activity) { exception ->
-                Toast.makeText(activity, "Failed to get location: ${exception.message}", Toast.LENGTH_SHORT).show()
+            }.addOnFailureListener { exception ->
+                Log.e("LocationHelper", "Failed to get location: ${exception.message}")
             }
         } else {
-            Toast.makeText(activity, "Location services are turned off. Turn on location services.", Toast.LENGTH_SHORT).show()
-            activity.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            Log.e("LocationHelper", "Location services are turned off.")
+            context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
         }
-    }
-
-    private fun navigateToWeatherActivity(latitude: Double, longitude: Double, cityName: String) {
-        val weatherIntent = Intent(activity, WeatherActivity::class.java).apply {
-            putExtra("latitude", latitude)
-            putExtra("longitude", longitude)
-            putExtra("cityName", cityName)
-        }
-        activity.startActivity(weatherIntent)
-        activity.finish()
     }
 
     private fun isLocationEnabled(): Boolean {
-        val locationManager = activity.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
     private fun requestPermissions() {
         ActivityCompat.requestPermissions(
-            activity, arrayOf(
+            context as Activity, arrayOf(
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ), PERMISSION_REQUEST_ACCESS_LOCATION
@@ -91,20 +84,19 @@ class LocationHelper(private val activity: Activity) {
     fun onRequestPermissionsResult(requestCode: Int, grantResults: IntArray) {
         if (requestCode == PERMISSION_REQUEST_ACCESS_LOCATION) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(activity.applicationContext, "Permission granted", Toast.LENGTH_SHORT).show()
-                getCurrentLocation()
+                locationCallback?.let { getCurrentLocation(it) }
             } else {
-                Toast.makeText(activity.applicationContext, "Permission denied", Toast.LENGTH_SHORT).show()
+                Log.e("LocationHelper", "Permission denied")
             }
         }
     }
 
     private fun checkPermission(): Boolean {
         return ActivityCompat.checkSelfPermission(
-            activity,
+            context,
             Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-            activity,
+            context,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
     }
