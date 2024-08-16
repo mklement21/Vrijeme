@@ -53,16 +53,18 @@ class MainActivity : ComponentActivity() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, 13)
-        calendar.set(Calendar.MINUTE, 30)
-        calendar.set(Calendar.SECOND, 0)
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 19)
+            set(Calendar.MINUTE, 18)
+            set(Calendar.SECOND, 0)
 
-        if (calendar.timeInMillis < System.currentTimeMillis()) {
-            calendar.add(Calendar.DAY_OF_YEAR, 1)
+            if (timeInMillis < System.currentTimeMillis()) {
+                add(Calendar.DAY_OF_YEAR, 1)
+            }
         }
+
         Log.d("MainActivity", "Alarm set for: ${calendar.time}")
 
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
     }
 }

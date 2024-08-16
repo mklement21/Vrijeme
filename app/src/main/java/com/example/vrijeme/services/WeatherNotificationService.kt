@@ -12,7 +12,6 @@ import androidx.core.app.NotificationCompat
 import com.example.vrijeme.R
 import com.example.vrijeme.helpers.LocationHelper
 import com.example.vrijeme.helpers.WeatherDataManager
-import com.example.vrijeme.helpers.WeatherDataManager.getWeatherData
 
 class WeatherNotificationService : Service() {
     private val NOTIFICATION_ID = 100
@@ -33,7 +32,7 @@ class WeatherNotificationService : Service() {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 "Weather Channel",
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_HIGH
             )
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)
@@ -41,7 +40,20 @@ class WeatherNotificationService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return START_STICKY
+        val initialNotification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("Weather Update")
+            .setContentText("Fetching weather data...")
+            .setSmallIcon(R.drawable.ic_notification)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .build()
+
+        startForeground(NOTIFICATION_ID, initialNotification)
+
+        locationHelper.checkAndRequestPermissions { latitude, longitude, cityName ->
+            onLocationReceived(latitude, longitude, cityName)
+        }
+
+        return START_NOT_STICKY
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -53,25 +65,41 @@ class WeatherNotificationService : Service() {
             .setContentTitle("Weather Alert")
             .setContentText("Current temperature: $temperature °C")
             .setSmallIcon(R.drawable.ic_notification)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
 
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
+
+        stopSelf()
     }
 
     private fun updateWeatherData(city: String) {
+        Log.d("WeatherNotification", "Updating weather data for city: $city")
         WeatherDataManager.getWeatherData(city, getString(R.string.api_key)) { weatherData ->
             if (weatherData != null) {
                 val temperature = weatherData.list[0].main.temp.toString()
                 sendNotification(temperature)
             } else {
                 Log.e("WeatherNotification", "Failed to retrieve weather data for location")
+                sendErrorNotification()
+                stopSelf()
             }
         }
     }
 
+
     fun onLocationReceived(latitude: Double, longitude: Double, cityName: String) {
         updateWeatherData(cityName)
     }
-}
 
+    private fun sendErrorNotification() {
+        val errorNotificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("Weather Alert")
+            .setContentText("Failed to retrieve weather data.")
+            .setSmallIcon(R.drawable.ic_notification)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(NOTIFICATION_ID, errorNotificationBuilder.build())
+    }
+}

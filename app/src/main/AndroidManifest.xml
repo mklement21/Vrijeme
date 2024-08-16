@@ -40,7 +40,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".helpers.WeatherAlarmReceiver" />
+        <receiver android:name=".helpers.WeatherAlarmReceiver"/>
 
         <service
             android:name=".services.WeatherNotificationService"
