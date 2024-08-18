@@ -54,9 +54,9 @@ class MainActivity : ComponentActivity() {
         )
 
         val calendar = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 19)
-            set(Calendar.MINUTE, 18)
-            set(Calendar.SECOND, 0)
+            set(Calendar.HOUR_OF_DAY, 21)
+            set(Calendar.MINUTE, 27)
+            set(Calendar.SECOND, 10)
 
             if (timeInMillis < System.currentTimeMillis()) {
                 add(Calendar.DAY_OF_YEAR, 1)
