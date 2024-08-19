@@ -77,9 +77,9 @@ class LocationService : Service() {
 
         val weatherIntent = Intent(this, WeatherNotificationService::class.java).apply {
             putExtra("cityName", cityName)
-            putExtra("latitude", latitude)
-            putExtra("longitude", longitude)
         }
         ContextCompat.startForegroundService(this, weatherIntent)
     }
+
+
 }

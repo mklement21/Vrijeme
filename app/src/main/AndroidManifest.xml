@@ -48,7 +48,9 @@
 
         <service
             android:name=".services.WeatherNotificationService"
-            android:exported="true" />
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location|dataSync" />
 
 
         <service
