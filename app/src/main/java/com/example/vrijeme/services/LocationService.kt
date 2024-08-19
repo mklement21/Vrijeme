@@ -7,50 +7,79 @@ import android.app.Service
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.example.vrijeme.R
+import com.example.vrijeme.helpers.LocationHelper
 
 class LocationService : Service() {
-
-    private val NOTIFICATION_ID = 1
+    private val NOTIFICATION_ID = 2
     private val CHANNEL_ID = "LocationChannel"
 
     override fun onCreate() {
         super.onCreate()
-        startForegroundService()
+        createNotificationChannel()
+        Log.d("LocationService", "Service created")
     }
 
-    private fun startForegroundService() {
+    private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 "Location Service Channel",
                 NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = "Channel for location service notifications"
-            }
+            )
             val manager = getSystemService(NotificationManager::class.java)
             manager?.createNotificationChannel(channel)
         }
-
-        val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Location Service")
-            .setContentText("Tracking location in the background")
-            .setSmallIcon(R.drawable.ic_notification)
-            .build()
-
-        startForeground(NOTIFICATION_ID, notification)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return START_STICKY
-    }
+        val initialNotification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("Location Service")
+            .setContentText("Initializing...")
+            .setSmallIcon(R.drawable.ic_notification)
+            .build()
+        startForeground(NOTIFICATION_ID, initialNotification)
 
-    override fun onDestroy() {
-        super.onDestroy()
+        fetchAndSendLocation()
+
+        return START_STICKY
     }
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
+    }
+
+    private fun fetchAndSendLocation() {
+        val locationHelper = LocationHelper(this)
+        locationHelper.checkAndRequestPermissions { latitude, longitude, cityName ->
+            Log.d("LocationService", "Fetched location: $latitude, $longitude, City: $cityName")
+            updateNotification(cityName)
+            sendLocationToWeatherService(cityName, latitude, longitude)
+        }
+    }
+
+    private fun updateNotification(cityName: String) {
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("Location Service")
+            .setContentText("Tracking location in $cityName")
+            .setSmallIcon(R.drawable.ic_notification)
+            .build()
+
+        val notificationManager = getSystemService(NotificationManager::class.java)
+        notificationManager.notify(NOTIFICATION_ID, notification)
+    }
+
+    private fun sendLocationToWeatherService(cityName: String, latitude: Double, longitude: Double) {
+        Log.d("LocationService", "Sending location to WeatherNotificationService: $cityName")
+
+        val weatherIntent = Intent(this, WeatherNotificationService::class.java).apply {
+            putExtra("cityName", cityName)
+            putExtra("latitude", latitude)
+            putExtra("longitude", longitude)
+        }
+        ContextCompat.startForegroundService(this, weatherIntent)
     }
 }

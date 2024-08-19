@@ -6,14 +6,13 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
-import com.example.vrijeme.services.WeatherNotificationService
+import com.example.vrijeme.services.LocationService
 
 class WeatherAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         Log.d("WeatherAlarmReceiver", "Alarm received")
-        //Toast.makeText(context, "Alarm je zazvonio!", Toast.LENGTH_SHORT).show()
 
-        val serviceIntent = Intent(context, WeatherNotificationService::class.java)
+        val serviceIntent = Intent(context, LocationService::class.java)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Log.d("WeatherAlarmReceiver", "Starting service in foreground mode")
