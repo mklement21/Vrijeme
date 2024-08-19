@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.location.LocationManager
+import android.os.Build
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
@@ -19,7 +20,6 @@ import java.util.Locale
 
 class LocationHelper(private val context: Context) {
     private val locationProviderClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
-
     private var locationCallback: ((Double, Double, String) -> Unit)? = null
 
     fun checkAndRequestPermissions(callback: (Double, Double, String) -> Unit) {
@@ -33,14 +33,12 @@ class LocationHelper(private val context: Context) {
 
     private fun getCurrentLocation(locationCallback: (Double, Double, String) -> Unit) {
         if (isLocationEnabled()) {
-            if (ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Log.e("LocationHelper", "Background location permission not granted")
+                return
+            }
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions()
                 return
             }
@@ -48,14 +46,10 @@ class LocationHelper(private val context: Context) {
                 if (location != null) {
                     val geocoder = Geocoder(context, Locale.getDefault())
                     val addresses: List<Address>? = geocoder.getFromLocation(location.latitude, location.longitude, 1)
-                    val cityName = addresses?.getOrNull(0)?.locality
-                    if (cityName != null) {
-                        locationCallback(location.latitude, location.longitude, cityName) // Invoke the callback
-                    } else {
-                        Log.e("LocationHelper", "City name not found")
-                    }
+                    val cityName = addresses?.getOrNull(0)?.locality ?: "Unknown"
+                    locationCallback(location.latitude, location.longitude, cityName)
                 } else {
-                    Log.e("LocationHelper", "Failed to get location")
+                    Log.e("LocationHelper", "Location is null")
                 }
             }.addOnFailureListener { exception ->
                 Log.e("LocationHelper", "Failed to get location: ${exception.message}")
@@ -76,7 +70,8 @@ class LocationHelper(private val context: Context) {
         ActivityCompat.requestPermissions(
             context as Activity, arrayOf(
                 Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
             ), PERMISSION_REQUEST_ACCESS_LOCATION
         )
     }
@@ -92,13 +87,9 @@ class LocationHelper(private val context: Context) {
     }
 
     private fun checkPermission(): Boolean {
-        return ActivityCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
+        return ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
+                        ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED)
     }
 
     companion object {
