@@ -15,6 +15,7 @@ import com.example.vrijeme.helpers.WeatherDataManager
 class WeatherNotificationService : Service() {
     private val NOTIFICATION_ID = 100
     private val CHANNEL_ID = "WeatherChannel"
+    private lateinit var cityName: String
 
     override fun onCreate() {
         super.onCreate()
@@ -34,8 +35,7 @@ class WeatherNotificationService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // Extract the city name from the intent
-        val cityName = intent?.getStringExtra("cityName") ?: "Unknown"
+        cityName = intent?.getStringExtra("cityName") ?: "Unknown"
         Log.d("WeatherNotificationService", "City name received: $cityName")
 
         updateWeatherData(cityName)
@@ -50,7 +50,7 @@ class WeatherNotificationService : Service() {
     private fun sendNotification(temperature: String) {
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Weather Alert")
-            .setContentText("Current temperature in Osijek: $temperature °C")
+            .setContentText("Current temperature in $cityName: $temperature °C")
             .setSmallIcon(R.drawable.ic_notification)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
 
@@ -87,5 +87,9 @@ class WeatherNotificationService : Service() {
 
         stopForeground(true)
         stopSelf()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 }

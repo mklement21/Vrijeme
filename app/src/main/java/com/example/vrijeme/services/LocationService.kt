@@ -80,6 +80,4 @@ class LocationService : Service() {
         }
         ContextCompat.startForegroundService(this, weatherIntent)
     }
-
-
 }
