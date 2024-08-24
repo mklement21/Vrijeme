@@ -52,7 +52,6 @@
             android:exported="false"
             android:foregroundServiceType="location|dataSync" />
 
-
         <service
             android:name=".services.LocationService"
             android:exported="false"/>

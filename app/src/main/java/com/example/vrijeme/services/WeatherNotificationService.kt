@@ -34,7 +34,6 @@ class WeatherNotificationService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // Extract the city name from the intent
         val cityName = intent?.getStringExtra("cityName") ?: "Unknown"
         Log.d("WeatherNotificationService", "City name received: $cityName")
 

@@ -10,8 +10,6 @@ import com.example.vrijeme.services.LocationService
 
 class WeatherAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        Log.d("WeatherAlarmReceiver", "Alarm received")
-
         val serviceIntent = Intent(context, LocationService::class.java)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
