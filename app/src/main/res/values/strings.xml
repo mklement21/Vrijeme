@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Vrijeme</string>
+    <string name="api_key">df70babbb87f5d879808ee33ec5685f6</string>
 </resources>

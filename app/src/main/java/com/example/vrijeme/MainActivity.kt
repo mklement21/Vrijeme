@@ -1,46 +1,70 @@
 package com.example.vrijeme
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.vrijeme.ui.theme.VrijemeTheme
+import com.example.vrijeme.helpers.LocationHelper
+import com.example.vrijeme.helpers.WeatherAlarmReceiver
+import java.util.*
 
 class MainActivity : ComponentActivity() {
+    private lateinit var locationHelper: LocationHelper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            VrijemeTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
-                }
+
+        locationHelper = LocationHelper(this)
+
+        // Check permissions and request location
+        locationHelper.checkAndRequestPermissions { latitude, longitude, cityName ->
+            Log.d("MainActivity", "Location acquired: $latitude, $longitude, City: $cityName")
+            val intent = Intent(this, WeatherActivity::class.java).apply {
+                putExtra("latitude", latitude)
+                putExtra("longitude", longitude)
+                putExtra("cityName", cityName)
+            }
+            startActivity(intent)
+            finish()
+        }
+
+        scheduleNotification()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        locationHelper.onRequestPermissionsResult(requestCode, grantResults)
+    }
+
+    private fun scheduleNotification() {
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(this, WeatherAlarmReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 17)
+            set(Calendar.MINUTE, 52)
+            set(Calendar.SECOND, 20)
+
+            if (timeInMillis < System.currentTimeMillis()) {
+                add(Calendar.DAY_OF_YEAR, 1)
             }
         }
-    }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+        Log.d("MainActivity", "Alarm set for: ${calendar.time}")
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    VrijemeTheme {
-        Greeting("Android")
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
     }
 }
