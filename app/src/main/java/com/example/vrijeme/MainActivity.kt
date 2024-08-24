@@ -1,6 +1,7 @@
 package com.example.vrijeme
 
 import android.app.AlarmManager
+import android.app.AlarmManager.INTERVAL_DAY
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -54,17 +55,22 @@ class MainActivity : ComponentActivity() {
         )
 
         val calendar = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 18)
-            set(Calendar.MINUTE, 3)
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 9)
             set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
 
             if (timeInMillis < System.currentTimeMillis()) {
                 add(Calendar.DAY_OF_YEAR, 1)
             }
         }
 
-        Log.d("MainActivity", "Alarm set for: ${calendar.time}")
+        Log.d("MainActivity", "Repeating alarm set for: ${calendar.time}")
 
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+        alarmManager.setExact(
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            pendingIntent
+        )
     }
 }
